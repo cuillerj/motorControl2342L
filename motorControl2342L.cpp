@@ -7,6 +7,10 @@ Créé par Henri, October 18, 2015.
 //#include "WProgram.h"
 #include "motorControl2342L.h"
 
+// Create a Motor knowing the connection pins on arduino and the motor maximum revolutions per minute.
+// pinEN corresponds to the arduino PWM pin used to set the rotation speed of the motor. The value sent by arduino should be comprised between 0 and 255.
+// pinIN1 and pinIN2 correspond to the arduino pins used to define the rotation sense of the motor. 10 makes the motor run clockwise (TBC) and 01 makes the motor run counter-clockwise (TBC).
+// iMotorMaxrpm is the maximum revolutions per minutes of the motor. This value is used to control the value to send to arduino to reach the expected speed.
 Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm)
 {
   pinMode(pinEN, OUTPUT);
@@ -21,9 +25,9 @@ Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm)
 }
 
 // Moves motor according to defined direction, duration and speed
-// Motor moves clockwise if bForward is true
+// Motor moves clockwise if bClockWise is true, counter-clockwise otherwise
 // Motor runs during iDuration milliseconds
-// Motor runs at irpm revolutions per minute
+// Motor runs at irpm revolutions per minute. This value is limited to _iMotorMaxrpm (if a greater value is sent, this value is reduced to _iMotorMaxrpm)
 void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
 {
   // Direction du Moteur
@@ -46,8 +50,8 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
   //Serial.println(255*irpm/_iMotorMaxrpm);
 }
 
-// Check whether the motor has turned the expected number of turns or not
-// Returns the rotation speed of the motor (motor is running if speed > 0)
+// Check whether the motor is running and has realised the expected distance
+// It returns the speed of the motor (in revolutions per minute), 0 if not running.
 int Motor::CheckMotor()
 {
 	if (_irpm > 0)
@@ -68,7 +72,7 @@ int Motor::CheckMotor()
 	}
 }
 
-// Collects the number of turns performed since last start of the motor
+// Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
 int Motor::getCoveredCentiRevolutions()
 {
 	return _irpm*60*(millis()-_startTime)*1000/100;
