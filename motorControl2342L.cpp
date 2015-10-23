@@ -80,7 +80,7 @@ int Motor::CheckMotor()
 // Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
 unsigned long Motor::getCoveredCentiRevolutions()
 {
-	unsigned long iCoveredCentiRevolutions = _irpm*60*(millis()-_startTime)*1000/100;
+	unsigned long iCoveredCentiRevolutions = _irpm*(millis()-_startTime)*100/60/1000;
 	Serial.print("Number of performed centi-revolutions: ");
     Serial.println(iCoveredCentiRevolutions);
 	return iCoveredCentiRevolutions;
