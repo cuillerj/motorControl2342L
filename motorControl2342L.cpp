@@ -44,7 +44,9 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
   }
   analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
   _startTime = millis();
-  _iExpectedCentiRevolutions = iDuration*irpm*60*1000/100;  
+  _iExpectedCentiRevolutions = iDuration*irpm*60*1000/100;
+  Serial.print("Number of expected centi-revolutions: ");
+  Serial.println(_iExpectedCentiRevolutions);
   
   //Serial.print("Motor PWM set to ");
   //Serial.println(255*irpm/_iMotorMaxrpm);
@@ -75,7 +77,10 @@ int Motor::CheckMotor()
 // Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
 int Motor::getCoveredCentiRevolutions()
 {
-	return _irpm*60*(millis()-_startTime)*1000/100;
+	int iCoveredCentiRevolutions = _irpm*60*(millis()-_startTime)*1000/100;
+	Serial.print("Number of performed centi-revolutions: ");
+    Serial.println(iCoveredCentiRevolutions);
+	return iCoveredCentiRevolutions;
 }
 
 // Stops the motor
