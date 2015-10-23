@@ -44,6 +44,10 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
   }
   analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
   _startTime = millis();
+  Serial.print("Expected duration: ");
+  Serial.println(iDuration);
+  Serial.print("Expected rpm: ");
+  Serial.println(irpm);
   _iExpectedCentiRevolutions = iDuration*irpm*60*1000/100;
   Serial.print("Number of expected centi-revolutions: ");
   Serial.println(_iExpectedCentiRevolutions);
