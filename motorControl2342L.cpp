@@ -21,14 +21,14 @@ Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm)
   _pinIN2 = pinIN2;
   _iMotorMaxrpm = iMotorMaxrpm;
   _irpm = 0;
-  _iExpectedCentiRevolutions = 0;
+  _expectedCentiRevolutions = 0;
 }
 
-// Moves motor according to defined direction, duration and speed
+// Moves motor according to defined direction, number of centi-revolutions and speed
 // Motor moves clockwise if bClockWise is true, counter-clockwise otherwise
-// Motor runs during iDuration milliseconds
+// Motor runs during iCentiRevolutions centi-revolutions (meaning 0.01 revolution)
 // Motor runs at irpm revolutions per minute. This value is limited to _iMotorMaxrpm (if a greater value is sent, this value is reduced to _iMotorMaxrpm)
-void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
+void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutions, int irpm)
 {
   // Direction du Moteur
   digitalWrite(_pinIN1,bClockwise);
@@ -44,13 +44,12 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iDuration, int irpm)
   }
   analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
   _startTime = millis();
-  Serial.print("Expected duration: ");
-  Serial.println(iDuration);
+  _expectedCentiRevolutions = iRequestedCentiRevolutions;
+  
+  Serial.print("Number of expected centi-revolutions: ");
+  Serial.println(_expectedCentiRevolutions);
   Serial.print("Expected rpm: ");
   Serial.println(irpm);
-  _iExpectedCentiRevolutions = iDuration*irpm*60*1000/100;
-  Serial.print("Number of expected centi-revolutions: ");
-  Serial.println(_iExpectedCentiRevolutions);
   
   //Serial.print("Motor PWM set to ");
   //Serial.println(255*irpm/_iMotorMaxrpm);
@@ -62,7 +61,7 @@ int Motor::CheckMotor()
 {
 	if (_irpm > 0)
 	{
-		if (!(getCoveredCentiRevolutions() > _iExpectedCentiRevolutions))
+		if (!(getCoveredCentiRevolutions() > _expectedCentiRevolutions))
 		{
 			return _irpm;
 		}
@@ -79,9 +78,9 @@ int Motor::CheckMotor()
 }
 
 // Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
-int Motor::getCoveredCentiRevolutions()
+unsigned long Motor::getCoveredCentiRevolutions()
 {
-	int iCoveredCentiRevolutions = _irpm*60*(millis()-_startTime)*1000/100;
+	unsigned long iCoveredCentiRevolutions = _irpm*60*(millis()-_startTime)*1000/100;
 	Serial.print("Number of performed centi-revolutions: ");
     Serial.println(iCoveredCentiRevolutions);
 	return iCoveredCentiRevolutions;
@@ -93,6 +92,6 @@ void Motor::StopMotor()
 	digitalWrite(_pinEN, LOW);
 	_irpm = 0;
 	_startTime = 0;
-	_iExpectedCentiRevolutions = 0;
+	_expectedCentiRevolutions = 0;
 	// Serial.println("Motor stopped");
 }
