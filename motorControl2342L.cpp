@@ -45,14 +45,14 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
   _startTime = millis();
   _expectedCentiRevolutions = iRequestedCentiRevolutions;
-  
+  Serial.println(_pinEN);
   Serial.print("Number of expected centi-revolutions: ");
   Serial.println(_expectedCentiRevolutions);
   Serial.print("Expected rpm: ");
   Serial.println(irpm);
   
-  //Serial.print("Motor PWM set to ");
-  //Serial.println(255*irpm/_iMotorMaxrpm);
+  Serial.print("Motor PWM set to ");
+  Serial.println(255*_irpm/_iMotorMaxrpm);
 }
 
 // Check whether the motor is running and has realised the expected distance
