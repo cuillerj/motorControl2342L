@@ -42,9 +42,12 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   {
 	  _irpm = irpm;
   }
-  analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
-  _startTime = millis();
   _expectedCentiRevolutions = iRequestedCentiRevolutions;
+  if (_expectedCentiRevolutions>0)
+  {  // Run motor only if we asked for a positive number of turns
+	analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
+	_startTime = millis();
+  }
   Serial.println(_pinEN);
   Serial.print("Number of expected centi-revolutions: ");
   Serial.println(_expectedCentiRevolutions);
