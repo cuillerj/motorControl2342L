@@ -11,7 +11,7 @@ Créé par Henri, October 18, 2015.
 // pinEN corresponds to the arduino PWM pin used to set the rotation speed of the motor. The value sent by arduino should be comprised between 0 and 255.
 // pinIN1 and pinIN2 correspond to the arduino pins used to define the rotation sense of the motor. 10 makes the motor run clockwise (TBC) and 01 makes the motor run counter-clockwise (TBC).
 // iMotorMaxrpm is the maximum revolutions per minutes of the motor. This value is used to control the value to send to arduino to reach the expected speed.
-Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm)
+Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm, int iSlowPMW)
 {
   pinMode(pinEN, OUTPUT);
   pinMode(pinIN1, OUTPUT);
@@ -19,6 +19,7 @@ Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm)
   _pinEN = pinEN;
   _pinIN1 = pinIN1;
   _pinIN2 = pinIN2;
+  _iSlowPMW=iSlowPMW;
   _iMotorMaxrpm = iMotorMaxrpm;
   _irpm = 0;
   _expectedCentiRevolutions = 0;
@@ -45,7 +46,7 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   _expectedCentiRevolutions = iRequestedCentiRevolutions;
   if (_expectedCentiRevolutions>0)
   {  // Run motor only if we asked for a positive number of turns
-	analogWrite(_pinEN,255*_irpm/_iMotorMaxrpm);
+	analogWrite(_pinEN,min(255*_irpm/_iMotorMaxrpm,255));
 	_startTime = millis();
   }
   Serial.println(_pinEN);
@@ -60,16 +61,37 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
 
 // Check whether the motor is running and has realised the expected distance
 // It returns the speed of the motor (in revolutions per minute), 0 if not running.
-int Motor::CheckMotor()
+int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRevolutions)
 {
+
 	if (_irpm > 0)
 	{
-		if (!(getCoveredCentiRevolutions() > _expectedCentiRevolutions))
+	Serial.print("check:");
+	Serial.print(currentMotorSpeed);
+	Serial.print(" ");
+	Serial.println(lDoneCentiRevolutions);
+	if (currentMotorSpeed>0)
+		{
+		if (_expectedCentiRevolutions-lDoneCentiRevolutions <50)
+			{
+			Serial.println("slow:");
+			analogWrite(_pinEN,_iSlowPMW); // 
+			}
+		else{
+			Serial.println(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm);
+			analogWrite(_pinEN,min(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm,255)); // speed adjustment to reality
+			}
+
+//		if (!(getCoveredCentiRevolutions() > _expectedCentiRevolutions))
+
+	}
+	if (lDoneCentiRevolutions < _expectedCentiRevolutions)
 		{
 			return _irpm;
 		}
 		else
 		{
+			Serial.println("stop");
 			StopMotor();
 			return 0;
 		}
@@ -84,8 +106,8 @@ int Motor::CheckMotor()
 unsigned long Motor::getCoveredCentiRevolutions()
 {
 	unsigned long iCoveredCentiRevolutions = _irpm*(millis()-_startTime)*100/60/1000;
-	Serial.print("Number of performed centi-revolutions: ");
-    Serial.println(iCoveredCentiRevolutions);
+//	Serial.print("Number of performed centi-revolutions: ");
+//    Serial.println(iCoveredCentiRevolutions);
 	return iCoveredCentiRevolutions;
 }
 
