@@ -6,7 +6,8 @@ Créé par Henri, October 18, 2015.
 
 //#include "WProgram.h"
 #include "motorControl2342L.h"
-
+unsigned long lastlDoneCentiRevolutions=0;
+unsigned long lastCheckTime;
 // Create a Motor knowing the connection pins on arduino and the motor maximum revolutions per minute.
 // pinEN corresponds to the arduino PWM pin used to set the rotation speed of the motor. The value sent by arduino should be comprised between 0 and 255.
 // pinIN1 and pinIN2 correspond to the arduino pins used to define the rotation sense of the motor. 10 makes the motor run clockwise (TBC) and 01 makes the motor run counter-clockwise (TBC).
@@ -46,7 +47,7 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   _expectedCentiRevolutions = iRequestedCentiRevolutions;
   if (_expectedCentiRevolutions>0)
   {  // Run motor only if we asked for a positive number of turns
-	analogWrite(_pinEN,min(255*_irpm/_iMotorMaxrpm,255));
+	analogWrite(_pinEN,min((255*_irpm)/_iMotorMaxrpm,255));
 	_startTime = millis();
   }
   Serial.println(_pinEN);
@@ -66,25 +67,35 @@ int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRe
 
 	if (_irpm > 0)
 	{
-	Serial.print("check:");
-	Serial.print(currentMotorSpeed);
-	Serial.print(" ");
-	Serial.println(lDoneCentiRevolutions);
+//	Serial.print("check:");
+//	Serial.print(currentMotorSpeed);
+//	Serial.print(" ");
+//	Serial.println(lDoneCentiRevolutions);
 	if (currentMotorSpeed>0)
 		{
-		if (_expectedCentiRevolutions-lDoneCentiRevolutions <50)
+		if (_expectedCentiRevolutions-lDoneCentiRevolutions <75)
 			{
-			Serial.println("slow:");
+//			Serial.println("slow:");
 			analogWrite(_pinEN,_iSlowPMW); // 
 			}
 		else{
-			Serial.println(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm);
-			analogWrite(_pinEN,min(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm,255)); // speed adjustment to reality
+//		Serial.println(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm);
+//			analogWrite(_pinEN,min(float (_irpm*255/_iMotorMaxrpm)/currentMotorSpeed,255)); // speed adjustment to reality
 			}
 
 //		if (!(getCoveredCentiRevolutions() > _expectedCentiRevolutions))
 
 	}
+	if (lastlDoneCentiRevolutions == lDoneCentiRevolutions && millis()-lastCheckTime>500 && millis()-_startTime>500)  // motor does not turn properly
+		{
+			StopMotor();
+			return -2;
+		}
+	if (lastlDoneCentiRevolutions != lDoneCentiRevolutions)
+		{
+			lastCheckTime=millis();
+			lastlDoneCentiRevolutions=lDoneCentiRevolutions;
+		}
 	if (lDoneCentiRevolutions < _expectedCentiRevolutions)
 		{
 			return _irpm;
@@ -93,13 +104,16 @@ int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRe
 		{
 			Serial.println("stop");
 			StopMotor();
-			return 0;
+			return -1;
 		}
+
+
 	}
 	else
 	{
 		return 0;
 	}
+
 }
 
 // Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
