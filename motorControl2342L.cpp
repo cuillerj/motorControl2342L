@@ -79,14 +79,16 @@ int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRe
 			analogWrite(_pinEN,_iSlowPMW); // 
 			}
 		else{
-//		Serial.println(float (_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm);
-//			analogWrite(_pinEN,min(float (_irpm*255/_iMotorMaxrpm)/currentMotorSpeed,255)); // speed adjustment to reality
+			// need PID
+//		int newRpm=min(max(float ((_irpm)/currentMotorSpeed*_irpm*255/_iMotorMaxrpm),_iSlowPMW),255);
+//		Serial.println(newRpm);
+//	    analogWrite(_pinEN,newRpm); // speed adjustment to reality
 			}
 
 //		if (!(getCoveredCentiRevolutions() > _expectedCentiRevolutions))
 
 	}
-	if (lastlDoneCentiRevolutions == lDoneCentiRevolutions && millis()-lastCheckTime>500 && millis()-_startTime>500)  // motor does not turn properly
+	if (lastlDoneCentiRevolutions == lDoneCentiRevolutions && millis()-lastCheckTime>200 && millis()-_startTime>200)  // motor does not turn properly
 		{
 			StopMotor();
 			return -2;
