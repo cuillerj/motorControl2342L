@@ -3,7 +3,7 @@ motorControl.cpp - Bibliothèque de contrôle de moteur.
 _________
 Créé par Henri, October 18, 2015.
 */
-//#define debugMotorsOn true
+#define debugMotorsOn true
 //#include "WProgram.h"
 #include "motorControl2342L.h"
 unsigned long lastlDoneCentiRevolutions=0;
@@ -62,30 +62,25 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   Serial.println(255*_irpm/_iMotorMaxrpm);
   #endif
 }
-void Motor::RunMotor(boolean bClockwise, int irpm)
+void Motor::RunMotor(boolean bClockwise, unsigned int iPWM)
 {
   // Direction du Moteur
   digitalWrite(_pinIN1,bClockwise);
   digitalWrite(_pinIN2,!bClockwise);
  runNoLimit=true;  // motor runs without limitation
-  if (irpm>_iMotorMaxrpm)
+  if (iPWM>255)
   { // Limit requested speed to known motor limit
-    _irpm = _iMotorMaxrpm;
+    iPWM = 255;
   }
-  else
-  {
-	  _irpm = irpm;
-  }
+
    // Run motor only if we asked for a positive number of turns
-	analogWrite(_pinEN,min((255*_irpm)/_iMotorMaxrpm,255));
+	analogWrite(_pinEN,iPWM);
 //	_startTime = millis();
  
   #if defined(debugMotorsOn)
   Serial.println(_pinEN);
-  Serial.print("Expected rpm: ");
-  Serial.println(irpm);
    Serial.print("Motor PWM set to ");
-  Serial.println(255*_irpm/_iMotorMaxrpm);
+  Serial.println(iPWM);
   #endif
 }
 // Check whether the motor is running and has realised the expected distance

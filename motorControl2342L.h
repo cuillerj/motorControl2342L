@@ -2,7 +2,6 @@
 
 #ifndef motorControl_h_included
 #define motorControl_h_included
-
 // Enables to instantiate and control Motors
 class Motor
 {
@@ -14,17 +13,26 @@ public:
 Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm, int iSlowPMW);
 // Moves motor according to defined direction, number of centi-revolutions and speed
 // Motor moves clockwise if bClockWise is true, counter-clockwise otherwise
+// Speed is supposed to be linear with PWM 
+// iSlowPMW used to slowdown the rotation at the end
+
 // Motor runs during iCentiRevolutions centi-revolutions (meaning 0.01 revolution)
 // Motor runs at irpm revolutions per minute. This value is limited to _iMotorMaxrpm (if a greater value is sent, this value is reduced to _iMotorMaxrpm)
 void TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutions, int irpm);
-void RunMotor(boolean bClockwise, int irpm);
+
 // Check whether the motor is running and has realised the expected distance
 // It returns the speed of the motor (in revolutions per minute), 0 if not running.
 int CheckMotor(unsigned int currentMotorpeed, unsigned long lDoneCentiRevolutions);
+
 // Checks the number of Centi-revolutions (meaning 0.01 revolution) performed since last start of the Motor.
 unsigned long getCoveredCentiRevolutions();
+
+// Just start motor at the requested PWM value - Stop and speed has to been managed by the main code
+void RunMotor(boolean bClockwise, unsigned int iPWM);  
+
 // Stops the motor
 void StopMotor();
+
 int _pinEN;
 int _pinIN1;
 int _pinIN2;
