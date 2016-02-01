@@ -3,7 +3,7 @@ motorControl.cpp - Bibliothèque de contrôle de moteur.
 _________
 Créé par Henri, October 18, 2015.
 */
-#define debugMotorsOn true
+//#define debugMotorsOn true
 //#include "WProgram.h"
 #include "motorControl2342L.h"
 unsigned long lastlDoneCentiRevolutions=0;
