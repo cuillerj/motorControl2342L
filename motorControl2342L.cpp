@@ -87,7 +87,6 @@ void Motor::RunMotor(boolean bClockwise, unsigned int iPWM)
 // It returns the speed of the motor (in revolutions per minute), 0 if not running.
 int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRevolutions)
 {
-	{
 if (!runNoLimit)
 	if (_irpm > 0)
 	{
@@ -144,6 +143,9 @@ if (!runNoLimit)
 	{
 		return 0;
 	}
+else
+{
+	return 0;
 }
 }
 
