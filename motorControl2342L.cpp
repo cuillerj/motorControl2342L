@@ -9,6 +9,7 @@ Créé par Henri, October 18, 2015.
 unsigned long lastlDoneCentiRevolutions=0;
 unsigned long lastCheckTime;
 boolean runNoLimit;
+
 // Create a Motor knowing the connection pins on arduino and the motor maximum revolutions per minute.
 // pinEN corresponds to the arduino PWM pin used to set the rotation speed of the motor. The value sent by arduino should be comprised between 0 and 255.
 // pinIN1 and pinIN2 correspond to the arduino pins used to define the rotation sense of the motor. 10 makes the motor run clockwise (TBC) and 01 makes the motor run counter-clockwise (TBC).
@@ -25,8 +26,12 @@ Motor::Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm, int iSlowPMW)
   _iMotorMaxrpm = iMotorMaxrpm;
   _irpm = 0;
   _expectedCentiRevolutions = 0;
+  _running=false;
 }
-
+boolean Motor::RunningMotor()
+{
+	return _running;
+}
 // Moves motor according to defined direction, number of centi-revolutions and speed
 // Motor moves clockwise if bClockWise is true, counter-clockwise otherwise
 // Motor runs during iCentiRevolutions centi-revolutions (meaning 0.01 revolution)
@@ -50,6 +55,7 @@ void Motor::TurnMotor(boolean bClockwise, unsigned long iRequestedCentiRevolutio
   {  // Run motor only if we asked for a positive number of turns
 	analogWrite(_pinEN,min((255*_irpm)/_iMotorMaxrpm,255));
 	_startTime = millis();
+	_running=true;
   }
   #if defined(debugMotorsOn)
   Serial.println(_pinEN);
@@ -75,6 +81,7 @@ void Motor::RunMotor(boolean bClockwise, unsigned int iPWM)
 
    // Run motor only if we asked for a positive number of turns
 	analogWrite(_pinEN,iPWM);
+	_running=true;
 //	_startTime = millis();
  
   #if defined(debugMotorsOn)
@@ -165,5 +172,6 @@ void Motor::StopMotor()
 	_irpm = 0;
 	_startTime = 0;
 	_expectedCentiRevolutions = 0;
+	_running=false;
 	// Serial.println("Motor stopped");
 }

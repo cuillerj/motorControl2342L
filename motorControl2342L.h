@@ -14,7 +14,7 @@ Motor(int pinEN, int pinIN1, int pinIN2, int iMotorMaxrpm, int iSlowPMW);
 // Moves motor according to defined direction, number of centi-revolutions and speed
 // Motor moves clockwise if bClockWise is true, counter-clockwise otherwise
 // Speed is supposed to be linear with PWM 
-// iSlowPMW used to slowdown the rotation at the end
+// iSlowPMW used to slowdown the rotation before stopping
 
 // Motor runs during iCentiRevolutions centi-revolutions (meaning 0.01 revolution)
 // Motor runs at irpm revolutions per minute. This value is limited to _iMotorMaxrpm (if a greater value is sent, this value is reduced to _iMotorMaxrpm)
@@ -33,12 +33,15 @@ void RunMotor(boolean bClockwise, unsigned int iPWM);
 // Stops the motor
 void StopMotor();
 
+boolean RunningMotor();
+
 int _pinEN;
 int _pinIN1;
 int _pinIN2;
 int _iMotorMaxrpm;
 int _irpm; // Stores the current speed of the motor. Once appropriate hardware is integrated, this constant should be replaced by the result of a function computing dynamically the speed of the motor.
 int _iSlowPMW;
+boolean _running;
 unsigned long _expectedCentiRevolutions; // At each start of the motor, this value stores the number of centi-revolutions asked to the motor (computed from iDuration and irpm)
 unsigned long _startTime; // At each start of the motor, this value stores the start time of the motor. Once appropriate hardware is integrated, this constant should no more be necessary as the distance covered since last start of the motor will be collected from sensors (and no more computed as done today).
 };
