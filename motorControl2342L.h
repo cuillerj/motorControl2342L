@@ -33,6 +33,8 @@ void RunMotor(boolean bClockwise, unsigned int iPWM);
 // Stops the motor
 void StopMotor();
 
+void AdjustMotorPWM( unsigned int iPWM );
+
 boolean RunningMotor();
 
 int _pinEN;

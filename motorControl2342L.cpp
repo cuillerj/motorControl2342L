@@ -92,6 +92,16 @@ void Motor::RunMotor(boolean bClockwise, unsigned int iPWM)
 }
 // Check whether the motor is running and has realised the expected distance
 // It returns the speed of the motor (in revolutions per minute), 0 if not running.
+void Motor::AdjustMotorPWM( unsigned int iPWM )
+{
+	  if (iPWM>255)
+  { // Limit requested speed to known motor limit
+    iPWM = 255;
+  }
+
+   // Run motor only if we asked for a positive number of turns
+	analogWrite(_pinEN,iPWM);
+}
 int Motor::CheckMotor(unsigned int currentMotorSpeed, unsigned long lDoneCentiRevolutions)
 {
 if (!runNoLimit)
